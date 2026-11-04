@@ -11,7 +11,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0}
 .wrap{max-width:760px;margin:0 auto;padding:16px 16px 110px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
 .top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
-.top h1{font-size:17px}.top .sub{color:var(--muted);font-size:12.5px}
+.top{height:70px}.top>div:first-child{min-width:0}.top h1{font-size:17px}.top .sub{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}@media(min-width:700px){.top .sub{max-width:none}}
 label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px}
 input[type=text],input[type=number],select{width:100%;padding:11px 12px;border:1px solid var(--border-strong);border-radius:10px;font:inherit;background:#fff}
 input:focus,select:focus{outline:2px solid var(--accent-bg);border-color:var(--accent)}
@@ -54,7 +54,6 @@ input.num{width:120px !important;text-align:center;font:600 15px 'JetBrains Mono
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxlW2MzJbupQTAqT3Vf3MosqyH9os288HKwDEyEZ8S4EQXMyRHz_A23Z3ntrTF_Zqm1Xw/exec";
 const REASONS=[["R1","Not taught / new"],["R2","Concept unclear"],["R3","Forgot formula"],["R4","Careless slip"],["R5","Time ran out"],["R6","Guessed / skipped"]];
 const RN=Object.fromEntries(REASONS);
-const MAXFILES=20;
 window.officialBank=window.officialBank||{};
 let T=null,S={stage:'setup',name:'',batch:'',testId:'',ans:{},reasons:{},notes:{},sub:null};
 const $=id=>document.getElementById(id);
@@ -63,17 +62,35 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 function save(){LS.set('ea_state_'+S.testId,S);LS.set('ea_who',{name:S.name,batch:S.batch})}
 
 // ---- load key files official_001.js ... in sequence until one is missing
-function loadKeys(){return new Promise(res=>{let i=1;(function nxt(){if(i>MAXFILES)return res();const id='official_'+String(i).padStart(3,'0');if(window.officialBank[id]){i++;return nxt()}
- const s=document.createElement('script');s.src=id+'.js?'+Date.now();s.onload=()=>{i++;nxt()};s.onerror=()=>res();document.head.appendChild(s)})()})}
+// ---- load key files named in tests.json (e.g. ["excel_rpt01","excel_rpt02"])
+function loadKeys(){return new Promise(async res=>{let list=[];
+ try{const r=await fetch('tests.json?'+Date.now());if(r.ok)list=await r.json()}catch(e){}
+ let i=0;(function nxt(){if(i>=list.length)return res();const id=String(list[i++]).replace(/\.js$/,'');
+  const s=document.createElement('script');s.src=id+'.js?'+Date.now();s.onload=nxt;s.onerror=nxt;document.head.appendChild(s)})()})}
 
 // ---- grading
-function nums(a,k){const x=parseFloat(String(a).replace(/,/g,''));return !isNaN(x)&&Math.abs(x-k)<=Math.max(0.011,Math.abs(k)*0.0005)}
-function status(q){const a=S.ans[q.n];if(a===undefined||a===''||a===null)return'skip';return(q.type==='num'?nums(a,q.key):Number(a)===q.key)?'ok':'wrong'}
-function grade(){const r={subs:{},total:0,max:0,wrong:0,skip:0,ok:0};T.subjects.forEach(s=>r.subs[s.code]={name:s.name,score:0,max:0,ok:0,wrong:0,skip:0});
- T.questions.forEach(q=>{const x=r.subs[q.sub],st=status(q),m=T.marking[q.type];x.max+=m[0];r.max+=m[0];
-  if(st==='ok'){x.score+=m[0];x.ok++;r.total+=m[0];r.ok++}else if(st==='wrong'){x.score+=m[1];x.wrong++;r.total+=m[1];r.wrong++}else{x.skip++;r.skip++}});return r}
+const LET="ABCD";
+const useLet=()=>T.optionStyle==='letters';
+const lab=o=>useLet()?LET[o-1]:String(o);
+const keyArr=q=>q.type==='multi'?q.key.map(c=>LET.indexOf(c)+1):(q.type==='mcq'&&typeof q.key==='string'?[LET.indexOf(q.key)+1]:[q.key]);
+function nums(a,k){const x=parseFloat(String(a).replace(/,/g,''));if(isNaN(x))return false;const tol=Number.isInteger(k)?1e-6:0.0051;return Math.abs(x-k)<=tol}
+function fullMarks(q){const m=T.marking[q.type];return q.type==='multi'?m.full:m[0]}
+// returns {st:'ok'|'part'|'wrong'|'skip', pts}
+function evalQ(q){const a=S.ans[q.n],m=T.marking[q.type];
+ if(a===undefined||a===''||a===null||(Array.isArray(a)&&!a.length))return{st:'skip',pts:0};
+ if(q.type==='num')return nums(a,q.key)?{st:'ok',pts:m[0]}:{st:'wrong',pts:m[1]};
+ if(q.type==='multi'){const K=keyArr(q),X=a.slice().sort();const same=X.length===K.length&&X.every((v,i)=>v===K.slice().sort()[i]);
+  if(same)return{st:'ok',pts:m.full};
+  if(K.length>=2&&X.length===1&&K.includes(X[0]))return{st:'part',pts:m.part};
+  return{st:'wrong',pts:m.neg}}
+ return Number(a)===keyArr(q)[0]?{st:'ok',pts:m[0]}:{st:'wrong',pts:m[1]}}
+const status=q=>evalQ(q).st;
+function grade(){const r={subs:{},total:0,max:0,wrong:0,skip:0,ok:0,part:0};T.subjects.forEach(s=>r.subs[s.code]={name:s.name,score:0,max:0,ok:0,wrong:0,skip:0,part:0});
+ T.questions.forEach(q=>{const x=r.subs[q.sub],e=evalQ(q);x.max+=fullMarks(q);r.max+=fullMarks(q);x.score+=e.pts;r.total+=e.pts;x[e.st]++;r[e.st]++});return r}
 function suggest(q,st){if(st==='skip')return q.diff==='H'?'R1':'R5';return q.diff==='E'?'R4':q.diff==='H'?'R1':'R2'}
 const issues=()=>T.questions.filter(q=>status(q)!=='ok');
+const ansTxt=q=>{const a=S.ans[q.n];if(a===undefined||a===''||(Array.isArray(a)&&!a.length))return'';return Array.isArray(a)?a.slice().sort().map(lab).join(','):(q.type==='num'?String(a):lab(Number(a)))};
+const keyTxt=q=>q.type==='num'?String(q.key):keyArr(q).map(lab).join(',');
 
 // ---- render
 function setBar(info,nextTxt,nextOn,back){$('bar').classList.remove('hide');$('barinfo').innerHTML=info;$('next').textContent=nextTxt;$('next').disabled=!nextOn;$('back').classList.toggle('hide',!back)}
@@ -95,19 +112,22 @@ function rSetup(){
 
 function rEntry(){
  $('topsub').textContent=T.title;const tb=$('tabs');tb.classList.remove('hide');
- tb.innerHTML=T.subjects.map(s=>{const qs=T.questions.filter(q=>q.sub===s.code);const d=qs.filter(q=>S.ans[q.n]!==undefined&&S.ans[q.n]!=='').length;
+ tb.innerHTML=T.subjects.map(s=>{const qs=T.questions.filter(q=>q.sub===s.code);const d=qs.filter(q=>evalQ(q).st!=='skip').length;
   return`<button class="tab ${S.sub===s.code?'on':''}" data-s="${s.code}">${s.name}<small>${d}/${qs.length} entered</small></button>`}).join('');
  tb.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{S.sub=b.dataset.s;save();rEntry();window.scrollTo(0,0)});
  const qs=T.questions.filter(q=>q.sub===S.sub);
- $('app').innerHTML=`<div class="card"><p class="muted" style="margin:0 0 6px;font-size:13px">Tap the option you marked. Leave a question blank if you did not attempt it. Numerical: type your answer.</p>`+
- qs.map(q=>q.type==='num'?
+ $('app').innerHTML=`<div class="card"><p class="muted" style="margin:0 0 6px;font-size:13px">Tap the option you marked. Leave a question blank if you did not attempt it. Numerical: type your answer. Questions tagged "Multiple" can have more than one correct option: tap all you marked.</p>`+
+ qs.map(q=>{const tag=q.type==='multi'?' <span class="tag s">Multiple</span>':'';
+  return q.type==='num'?
   `<div class="q"><div class="qn">${q.n}</div><div class="qm">${esc(q.chapter)}</div><input class="num" type="number" step="any" inputmode="decimal" data-n="${q.n}" value="${S.ans[q.n]??''}" placeholder="answer"></div>`:
-  `<div class="q"><div class="qn">${q.n}</div><div class="qm">${esc(q.chapter)}</div><div class="opts">${[1,2,3,4].map(o=>`<button class="o ${S.ans[q.n]===o?'on':''}" data-n="${q.n}" data-o="${o}">${o}</button>`).join('')}</div></div>`).join('')+`</div>`;
- document.querySelectorAll('.o').forEach(b=>b.onclick=()=>{const n=b.dataset.n,o=+b.dataset.o;if(S.ans[n]===o)delete S.ans[n];else S.ans[n]=o;save();
-  b.parentNode.querySelectorAll('.o').forEach(x=>x.classList.toggle('on',S.ans[n]===+x.dataset.o));upd()});
+  `<div class="q"><div class="qn">${q.n}</div><div class="qm">${esc(q.chapter)}${tag}</div><div class="opts">${[1,2,3,4].map(o=>`<button class="o ${(q.type==='multi'?(S.ans[q.n]||[]).includes(o):S.ans[q.n]===o)?'on':''}" data-n="${q.n}" data-o="${o}">${lab(o)}</button>`).join('')}</div></div>`}).join('')+`</div>`;
+ document.querySelectorAll('.o').forEach(b=>b.onclick=()=>{const n=b.dataset.n,o=+b.dataset.o,q=T.questions.find(x=>x.n==n);
+  if(q.type==='multi'){let a=S.ans[n]||[];a=a.includes(o)?a.filter(x=>x!==o):a.concat(o);if(a.length)S.ans[n]=a;else delete S.ans[n]}
+  else{if(S.ans[n]===o)delete S.ans[n];else S.ans[n]=o}
+  save();b.parentNode.querySelectorAll('.o').forEach(x=>{const v=+x.dataset.o;x.classList.toggle('on',q.type==='multi'?(S.ans[n]||[]).includes(v):S.ans[n]===v)});upd()});
  document.querySelectorAll('.num').forEach(i=>i.oninput=()=>{if(i.value==='')delete S.ans[i.dataset.n];else S.ans[i.dataset.n]=i.value;save();upd()});
  const idx=T.subjects.findIndex(s=>s.code===S.sub),last=idx===T.subjects.length-1;
- function upd(){const tot=Object.keys(S.ans).length;tb.querySelectorAll('.tab').forEach(b=>{const c=b.dataset.s,qq=T.questions.filter(q=>q.sub===c);b.querySelector('small').textContent=qq.filter(q=>S.ans[q.n]!==undefined).length+'/'+qq.length+' entered'});
+ function upd(){const tot=T.questions.filter(q=>evalQ(q).st!=='skip').length;tb.querySelectorAll('.tab').forEach(b=>{const c=b.dataset.s,qq=T.questions.filter(q=>q.sub===c);b.querySelector('small').textContent=qq.filter(q=>evalQ(q).st!=='skip').length+'/'+qq.length+' entered'});
   setBar(tot+' of '+T.questions.length+' attempted',last?'See my result':'Next: '+T.subjects[idx+1].name,true,idx>0)}
  upd();
  $('next').onclick=()=>{if(last){S.stage='reasons';save();render();window.scrollTo(0,0)}else{S.sub=T.subjects[idx+1].code;save();rEntry();window.scrollTo(0,0)}};
@@ -117,10 +137,10 @@ function rReasons(){
  $('topsub').textContent=T.title;$('tabs').classList.add('hide');
  const g=grade(),list=issues();
  const head=`<div class="card"><h2 style="font-size:18px">Your score: ${g.total} / ${g.max}</h2><div class="stats" style="margin-top:10px">${Object.values(g.subs).map(s=>`<div class="stat"><b>${s.score}</b><span>${s.name} / ${s.max}</span></div>`).join('')}</div>
-  <p class="muted" style="margin:10px 0 0;font-size:13.5px">${g.ok} correct · ${g.wrong} wrong · ${g.skip} not attempted. Tap one reason for each question below. Dashed = suggested.</p>
+  <p class="muted" style="margin:10px 0 0;font-size:13.5px">${g.ok} correct · ${g.wrong} wrong${g.part?' · '+g.part+' partial':''} · ${g.skip} not attempted. Tap one reason for each question below. Dashed = suggested.</p>
   ${list.length?`<button class="btn btn-secondary" id="acc" style="margin-top:10px;padding:9px 14px;font-size:13.5px">Use suggestions for the rest</button>`:''}</div>`;
  $('app').innerHTML=head+(list.length?list.map(q=>{const st=status(q),sg=suggest(q,st);
-  return`<div class="mc ${S.reasons[q.n]?'done':''}" data-n="${q.n}"><div class="h"><b style="font-family:'JetBrains Mono'">Q${q.n}</b><span class="tag ${st==='wrong'?'w':'s'}">${st==='wrong'?'Wrong':'Not attempted'}</span><span class="muted" style="font-size:12.5px">${esc(q.sub)} · ${esc(q.chapter)} · ${esc(q.topic)}${st==='wrong'?' · You: '+S.ans[q.n]+', Key: '+q.key:' · Key: '+q.key}</span></div>
+  return`<div class="mc ${S.reasons[q.n]?'done':''}" data-n="${q.n}"><div class="h"><b style="font-family:'JetBrains Mono'">Q${q.n}</b><span class="tag ${st==='skip'?'s':'w'}">${st==='wrong'?'Wrong':st==='part'?'Partial':'Not attempted'}</span><span class="muted" style="font-size:12.5px">${esc(q.sub)} · ${esc(q.chapter)} · ${esc(q.topic)}${st==='skip'?' · Key: '+keyTxt(q):' · You: '+ansTxt(q)+', Key: '+keyTxt(q)}</span></div>
   ${REASONS.map(([c,t])=>`<button class="chip ${S.reasons[q.n]===c?'on':''} ${sg===c?'sug':''}" data-n="${q.n}" data-c="${c}">${t}</button>`).join('')}
   <input class="note" data-n="${q.n}" placeholder="Optional note (what went wrong?)" value="${esc(S.notes[q.n]||'')}"></div>`}).join(''):`<div class="ok">Perfect paper - nothing to analyse!</div>`);
  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const n=b.dataset.n;S.reasons[n]=S.reasons[n]===b.dataset.c?undefined:b.dataset.c;if(!S.reasons[n])delete S.reasons[n];save();
@@ -132,8 +152,8 @@ function rReasons(){
 
 // ---- submit with offline queue
 function payload(){const g=grade();return{type:'analysis',id:'EA-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),submittedAt:new Date().toISOString(),name:S.name,batch:S.batch,testId:S.testId,testName:T.title,
- total:g.total,max:g.max,correct:g.ok,wrong:g.wrong,skipped:g.skip,subjects:Object.entries(g.subs).map(([c,s])=>({code:c,score:s.score,max:s.max,ok:s.ok,wrong:s.wrong,skip:s.skip})),
- mistakes:issues().map(q=>({n:q.n,sub:q.sub,chapter:q.chapter,topic:q.topic,diff:q.diff,ans:S.ans[q.n]===undefined?'':S.ans[q.n],key:q.key,status:status(q)==='wrong'?'Wrong':'Not attempted',reason:RN[S.reasons[q.n]]||'',code:S.reasons[q.n]||'',note:S.notes[q.n]||''}))}}
+ total:g.total,max:g.max,correct:g.ok,wrong:g.wrong+g.part,skipped:g.skip,subjects:Object.entries(g.subs).map(([c,s])=>({code:c,score:s.score,max:s.max,ok:s.ok,wrong:s.wrong,skip:s.skip})),
+ mistakes:issues().map(q=>({n:q.n,sub:q.sub,chapter:q.chapter,topic:q.topic,diff:q.diff,ans:ansTxt(q),key:keyTxt(q),status:({wrong:'Wrong',part:'Partial',skip:'Not attempted'})[status(q)],reason:RN[S.reasons[q.n]]||'',code:S.reasons[q.n]||'',note:S.notes[q.n]||''}))}}
 let flushing=false;
 async function flush(){if(flushing)return;flushing=true;try{let ob=LS.get('ea_outbox',[]);const keep=[];
  for(const p of ob){try{const c=new AbortController(),t=setTimeout(()=>c.abort(),20000);
