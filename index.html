@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Review - Error Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14161a;--page-bg:#f5f5f2;--card:#fff;--border:#e5e4de;--border-strong:#d7d5cd;--accent:#3454d1;--accent-dark:#24399e;--accent-bg:#ecf0fc;--success:#3f8f5f;--success-bg:#e9f5ee;--danger:#c1503f;--danger-bg:#fbeae6;--review:#7c6bc4;--review-bg:#f1eefb;--muted:#6b6d70;--faint:#9a9c9e}
+*{box-sizing:border-box}body{margin:0;background:var(--page-bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.45}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 110px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+.top h1{font-size:17px}.top .sub{color:var(--muted);font-size:12.5px}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px}
+input[type=text],input[type=number],select{width:100%;padding:11px 12px;border:1px solid var(--border-strong);border-radius:10px;font:inherit;background:#fff}
+input:focus,select:focus{outline:2px solid var(--accent-bg);border-color:var(--accent)}
+.btn{border:0;border-radius:10px;padding:12px 18px;font:600 15px Inter,sans-serif;cursor:pointer}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-dark)}.btn-primary:disabled{background:#b9c2e6;cursor:not-allowed}
+.btn-secondary{background:#fff;color:var(--ink);border:1px solid var(--border-strong)}
+.tabs{display:flex;gap:6px;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:70px;z-index:4;overflow-x:auto}
+.tab{flex:1;min-width:96px;padding:9px 6px;border-radius:10px;border:1px solid var(--border-strong);background:#fff;font:600 13.5px Inter;cursor:pointer;text-align:center}
+.tab.on{background:var(--accent);color:#fff;border-color:var(--accent)}.tab small{display:block;font-weight:500;opacity:.8;font-size:11.5px}
+.q{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--border)}
+.q:last-child{border-bottom:0}.qn{font:600 14px 'JetBrains Mono',monospace;width:34px;color:var(--ink)}
+.qm{flex:1;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opts{display:flex;gap:6px}.o{width:42px;height:42px;border-radius:10px;border:1px solid var(--border-strong);background:#fff;font:600 15px 'JetBrains Mono',monospace;cursor:pointer}
+.o.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+input.num{width:120px !important;text-align:center;font:600 15px 'JetBrains Mono',monospace}
+.q.num-row{flex-wrap:wrap}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;z-index:6}
+.bar .info{font-size:13px;color:var(--muted)}
+.chip{display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid var(--border-strong);background:#fff;font:500 13.5px Inter;cursor:pointer;margin:0 6px 6px 0}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip.sug:not(.on){border-style:dashed;border-color:var(--accent);color:var(--accent-dark)}
+.mc{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff}
+.mc.done{border-color:#bfe0cd;background:#fafdfb}
+.mc .h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
+.tag{font:600 11.5px Inter;padding:2px 8px;border-radius:6px}.tag.w{background:var(--danger-bg);color:var(--danger)}.tag.s{background:var(--review-bg);color:var(--review)}
+.note{width:100%;margin-top:4px;padding:8px 10px;font-size:13px;border:1px solid var(--border);border-radius:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.stat{background:var(--page-bg);border-radius:10px;padding:10px;text-align:center}.stat b{display:block;font:700 20px 'Space Grotesk'}.stat span{font-size:12px;color:var(--muted)}
+.hb{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13.5px}.hb .t{flex:1;height:10px;background:var(--page-bg);border-radius:6px;overflow:hidden}.hb .t i{display:block;height:100%;background:var(--accent)}
+.ok{background:var(--success-bg);color:var(--success);border-radius:10px;padding:12px 14px;font-weight:600}
+.warn{background:#fff6e5;color:#8a5a00;border-radius:10px;padding:12px 14px;font-size:14px}
+.muted{color:var(--muted)}.hide{display:none}
+</style></head><body>
+<div class="top"><div><h1>Test Review</h1><div class="sub" id="topsub">Quick error analysis</div></div><button class="btn btn-secondary hide" id="restart" style="padding:8px 12px;font-size:13px">Start over</button></div>
+<div id="tabs" class="tabs hide"></div>
+<div class="wrap" id="app"></div>
+<div class="bar hide" id="bar"><div class="info" id="barinfo"></div><div style="display:flex;gap:8px"><button class="btn btn-secondary hide" id="back">Back</button><button class="btn btn-primary" id="next">Next</button></div></div>
+
+<script>
+const SCRIPT_URL="PASTE_ANALYSIS_WEB_APP_URL_HERE";
+const REASONS=[["R1","Not taught / new"],["R2","Concept unclear"],["R3","Forgot formula"],["R4","Careless slip"],["R5","Time ran out"],["R6","Guessed / skipped"]];
+const RN=Object.fromEntries(REASONS);
+const MAXFILES=20;
+window.officialBank=window.officialBank||{};
+let T=null,S={stage:'setup',name:'',batch:'',testId:'',ans:{},reasons:{},notes:{},sub:null};
+const $=id=>document.getElementById(id);
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function save(){LS.set('ea_state_'+S.testId,S);LS.set('ea_who',{name:S.name,batch:S.batch})}
+
+// ---- load key files official_001.js ... in sequence until one is missing
+function loadKeys(){return new Promise(res=>{let i=1;(function nxt(){if(i>MAXFILES)return res();const id='official_'+String(i).padStart(3,'0');if(window.officialBank[id]){i++;return nxt()}
+ const s=document.createElement('script');s.src=id+'.js?'+Date.now();s.onload=()=>{i++;nxt()};s.onerror=()=>res();document.head.appendChild(s)})()})}
+
+// ---- grading
+function nums(a,k){const x=parseFloat(String(a).replace(/,/g,''));return !isNaN(x)&&Math.abs(x-k)<=Math.max(0.011,Math.abs(k)*0.0005)}
+function status(q){const a=S.ans[q.n];if(a===undefined||a===''||a===null)return'skip';return(q.type==='num'?nums(a,q.key):Number(a)===q.key)?'ok':'wrong'}
+function grade(){const r={subs:{},total:0,max:0,wrong:0,skip:0,ok:0};T.subjects.forEach(s=>r.subs[s.code]={name:s.name,score:0,max:0,ok:0,wrong:0,skip:0});
+ T.questions.forEach(q=>{const x=r.subs[q.sub],st=status(q),m=T.marking[q.type];x.max+=m[0];r.max+=m[0];
+  if(st==='ok'){x.score+=m[0];x.ok++;r.total+=m[0];r.ok++}else if(st==='wrong'){x.score+=m[1];x.wrong++;r.total+=m[1];r.wrong++}else{x.skip++;r.skip++}});return r}
+function suggest(q,st){if(st==='skip')return q.diff==='H'?'R1':'R5';return q.diff==='E'?'R4':q.diff==='H'?'R1':'R2'}
+const issues=()=>T.questions.filter(q=>status(q)!=='ok');
+
+// ---- render
+function setBar(info,nextTxt,nextOn,back){$('bar').classList.remove('hide');$('barinfo').innerHTML=info;$('next').textContent=nextTxt;$('next').disabled=!nextOn;$('back').classList.toggle('hide',!back)}
+function render(){$('restart').classList.toggle('hide',S.stage==='setup');({setup:rSetup,entry:rEntry,reasons:rReasons,done:rDone})[S.stage]()}
+
+function rSetup(){
+ $('tabs').classList.add('hide');$('bar').classList.add('hide');$('topsub').textContent='Quick error analysis';
+ const ids=Object.keys(window.officialBank);const who=LS.get('ea_who',{});
+ $('app').innerHTML=`<div class="card"><h2 style="font-size:20px">Review your institute test</h2>
+ <p class="muted" style="margin:6px 0 0">Keep your marked question paper in front of you. Enter what you marked, then tag why you lost marks. Takes about 10 minutes.</p>
+ <label>Test</label><select id="sel">${ids.length?ids.map(i=>`<option value="${i}">${esc(window.officialBank[i].title)}</option>`).join(''):'<option value="">No tests available yet</option>'}</select>
+ <label>Your name</label><input type="text" id="nm" value="${esc(who.name||'')}" autocomplete="name">
+ <label>Batch</label><input type="text" id="bt" value="${esc(who.batch||'')}" placeholder="e.g. 12-A">
+ <div style="margin-top:18px"><button class="btn btn-primary" id="go" style="width:100%">Start</button></div></div>`;
+ $('go').onclick=()=>{const id=$('sel').value,n=$('nm').value.trim(),b=$('bt').value.trim();if(!id||!n||!b){alert('Please choose a test and fill your name and batch.');return}
+  T=window.officialBank[id];const old=LS.get('ea_state_'+id,null);
+  if(old&&old.name===n&&old.stage!=='done'){S=old;S.batch=b}else S={stage:'entry',name:n,batch:b,testId:id,ans:{},reasons:{},notes:{},sub:T.subjects[0].code};
+  S.testId=id;save();render()}}
+
+function rEntry(){
+ $('topsub').textContent=T.title;const tb=$('tabs');tb.classList.remove('hide');
+ tb.innerHTML=T.subjects.map(s=>{const qs=T.questions.filter(q=>q.sub===s.code);const d=qs.filter(q=>S.ans[q.n]!==undefined&&S.ans[q.n]!=='').length;
+  return`<button class="tab ${S.sub===s.code?'on':''}" data-s="${s.code}">${s.name}<small>${d}/${qs.length} entered</small></button>`}).join('');
+ tb.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{S.sub=b.dataset.s;save();rEntry();window.scrollTo(0,0)});
+ const qs=T.questions.filter(q=>q.sub===S.sub);
+ $('app').innerHTML=`<div class="card"><p class="muted" style="margin:0 0 6px;font-size:13px">Tap the option you marked. Leave a question blank if you did not attempt it. Numerical: type your answer.</p>`+
+ qs.map(q=>q.type==='num'?
+  `<div class="q"><div class="qn">${q.n}</div><div class="qm">${esc(q.chapter)}</div><input class="num" type="number" step="any" inputmode="decimal" data-n="${q.n}" value="${S.ans[q.n]??''}" placeholder="answer"></div>`:
+  `<div class="q"><div class="qn">${q.n}</div><div class="qm">${esc(q.chapter)}</div><div class="opts">${[1,2,3,4].map(o=>`<button class="o ${S.ans[q.n]===o?'on':''}" data-n="${q.n}" data-o="${o}">${o}</button>`).join('')}</div></div>`).join('')+`</div>`;
+ document.querySelectorAll('.o').forEach(b=>b.onclick=()=>{const n=b.dataset.n,o=+b.dataset.o;if(S.ans[n]===o)delete S.ans[n];else S.ans[n]=o;save();
+  b.parentNode.querySelectorAll('.o').forEach(x=>x.classList.toggle('on',S.ans[n]===+x.dataset.o));upd()});
+ document.querySelectorAll('.num').forEach(i=>i.oninput=()=>{if(i.value==='')delete S.ans[i.dataset.n];else S.ans[i.dataset.n]=i.value;save();upd()});
+ const idx=T.subjects.findIndex(s=>s.code===S.sub),last=idx===T.subjects.length-1;
+ function upd(){const tot=Object.keys(S.ans).length;tb.querySelectorAll('.tab').forEach(b=>{const c=b.dataset.s,qq=T.questions.filter(q=>q.sub===c);b.querySelector('small').textContent=qq.filter(q=>S.ans[q.n]!==undefined).length+'/'+qq.length+' entered'});
+  setBar(tot+' of '+T.questions.length+' attempted',last?'See my result':'Next: '+T.subjects[idx+1].name,true,idx>0)}
+ upd();
+ $('next').onclick=()=>{if(last){S.stage='reasons';save();render();window.scrollTo(0,0)}else{S.sub=T.subjects[idx+1].code;save();rEntry();window.scrollTo(0,0)}};
+ $('back').onclick=()=>{S.sub=T.subjects[idx-1].code;save();rEntry();window.scrollTo(0,0)}}
+
+function rReasons(){
+ $('topsub').textContent=T.title;$('tabs').classList.add('hide');
+ const g=grade(),list=issues();
+ const head=`<div class="card"><h2 style="font-size:18px">Your score: ${g.total} / ${g.max}</h2><div class="stats" style="margin-top:10px">${Object.values(g.subs).map(s=>`<div class="stat"><b>${s.score}</b><span>${s.name} / ${s.max}</span></div>`).join('')}</div>
+  <p class="muted" style="margin:10px 0 0;font-size:13.5px">${g.ok} correct · ${g.wrong} wrong · ${g.skip} not attempted. Tap one reason for each question below. Dashed = suggested.</p>
+  ${list.length?`<button class="btn btn-secondary" id="acc" style="margin-top:10px;padding:9px 14px;font-size:13.5px">Use suggestions for the rest</button>`:''}</div>`;
+ $('app').innerHTML=head+(list.length?list.map(q=>{const st=status(q),sg=suggest(q,st);
+  return`<div class="mc ${S.reasons[q.n]?'done':''}" data-n="${q.n}"><div class="h"><b style="font-family:'JetBrains Mono'">Q${q.n}</b><span class="tag ${st==='wrong'?'w':'s'}">${st==='wrong'?'Wrong':'Not attempted'}</span><span class="muted" style="font-size:12.5px">${esc(q.sub)} · ${esc(q.chapter)} · ${esc(q.topic)}${st==='wrong'?' · You: '+S.ans[q.n]+', Key: '+q.key:' · Key: '+q.key}</span></div>
+  ${REASONS.map(([c,t])=>`<button class="chip ${S.reasons[q.n]===c?'on':''} ${sg===c?'sug':''}" data-n="${q.n}" data-c="${c}">${t}</button>`).join('')}
+  <input class="note" data-n="${q.n}" placeholder="Optional note (what went wrong?)" value="${esc(S.notes[q.n]||'')}"></div>`}).join(''):`<div class="ok">Perfect paper - nothing to analyse!</div>`);
+ document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const n=b.dataset.n;S.reasons[n]=S.reasons[n]===b.dataset.c?undefined:b.dataset.c;if(!S.reasons[n])delete S.reasons[n];save();
+  b.parentNode.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',S.reasons[n]===x.dataset.c));b.parentNode.classList.toggle('done',!!S.reasons[n]);upd()});
+ document.querySelectorAll('.note').forEach(i=>i.oninput=()=>{S.notes[i.dataset.n]=i.value;save()});
+ if($('acc'))$('acc').onclick=()=>{list.forEach(q=>{if(!S.reasons[q.n])S.reasons[q.n]=suggest(q,status(q))});save();rReasons()};
+ function upd(){const d=list.filter(q=>S.reasons[q.n]).length;setBar(d+' of '+list.length+' tagged','Submit',d===list.length,true)}
+ upd();$('back').onclick=()=>{S.stage='entry';save();render()};$('next').onclick=submit}
+
+// ---- submit with offline queue
+function payload(){const g=grade();return{type:'analysis',id:'EA-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),submittedAt:new Date().toISOString(),name:S.name,batch:S.batch,testId:S.testId,testName:T.title,
+ total:g.total,max:g.max,correct:g.ok,wrong:g.wrong,skipped:g.skip,subjects:Object.entries(g.subs).map(([c,s])=>({code:c,score:s.score,max:s.max,ok:s.ok,wrong:s.wrong,skip:s.skip})),
+ mistakes:issues().map(q=>({n:q.n,sub:q.sub,chapter:q.chapter,topic:q.topic,diff:q.diff,ans:S.ans[q.n]===undefined?'':S.ans[q.n],key:q.key,status:status(q)==='wrong'?'Wrong':'Not attempted',reason:RN[S.reasons[q.n]]||'',code:S.reasons[q.n]||'',note:S.notes[q.n]||''}))}}
+let flushing=false;
+async function flush(){if(flushing)return;flushing=true;try{let ob=LS.get('ea_outbox',[]);const keep=[];
+ for(const p of ob){try{const c=new AbortController(),t=setTimeout(()=>c.abort(),20000);
+  const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p),signal:c.signal});clearTimeout(t);const j=await r.json();if(!j.ok)keep.push(p)}catch(e){keep.push(p)}}
+ LS.set('ea_outbox',keep);return keep.length===0}finally{flushing=false}}
+async function submit(){const p=payload();S.last=p;S.stage='done';
+ const hist=LS.get('ea_hist',[]);hist.push({testId:S.testId,title:T.title,at:p.submittedAt,total:p.total,max:p.max,mistakes:p.mistakes.map(m=>({code:m.code,chapter:m.chapter}))});LS.set('ea_hist',hist);
+ const ob=LS.get('ea_outbox',[]);ob.push(p);LS.set('ea_outbox',ob);save();render();window.scrollTo(0,0);await flush();rDone(true)}
+function rDone(refresh){
+ const p=S.last;if(!p){S.stage='setup';return render()}
+ $('tabs').classList.add('hide');$('topsub').textContent=T.title;
+ const pend=LS.get('ea_outbox',[]).some(x=>x.id===p.id);
+ const cnt={};p.mistakes.forEach(m=>{const k=m.reason||'Untagged';cnt[k]=(cnt[k]||0)+1});
+ const ch={};p.mistakes.forEach(m=>ch[m.chapter]=(ch[m.chapter]||0)+1);
+ const bars=(o,n)=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k,v])=>`<div class="hb"><span style="width:150px">${esc(k)}</span><div class="t"><i style="width:${v/p.mistakes.length*100}%"></i></div><b>${v}</b></div>`).join('');
+ const hist=LS.get('ea_hist',[]);const all={};hist.forEach(h=>h.mistakes.forEach(m=>{if(m.code)all[RN[m.code]]=(all[RN[m.code]]||0)+1}));
+ $('app').innerHTML=`<div class="${pend?'warn':'ok'}">${pend?'Saved on this device. It will submit automatically when you are online - keep this page or reopen it later.':'Submitted. Thank you!'}</div>
+ <div class="card" style="margin-top:14px"><h2 style="font-size:18px">Score ${p.total} / ${p.max}</h2><div class="stats" style="margin-top:10px">${p.subjects.map(s=>`<div class="stat"><b>${s.score}</b><span>${esc(s.code)} / ${s.max}</span></div>`).join('')}</div></div>
+ ${p.mistakes.length?`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">Why you lost marks</h3>${bars(cnt,6)}</div><div class="card"><h3 style="font-size:16px;margin-bottom:6px">Chapters to revisit first</h3>${bars(ch,5)}</div>`:''}
+ ${hist.length>1?`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">Across all your reviewed tests (${hist.length})</h3>${bars(all,6).replace(/\/p.mistakes.length/,'')}</div>`:''}`;
+ $('bar').classList.add('hide');
+ if(pend&&!refresh)flush().then(()=>rDone(true))}
+$('restart').onclick=()=>{if(confirm('Discard this review and start over?')){try{localStorage.removeItem('ea_state_'+S.testId)}catch(e){}S={stage:'setup',ans:{},reasons:{},notes:{}};render()}};
+window.addEventListener('online',()=>{flush().then(()=>{if(S.stage==='done')rDone(true)})});
+loadKeys().then(()=>{
+ const ids=Object.keys(window.officialBank);
+ for(const id of ids){const st=LS.get('ea_state_'+id,null);if(st&&st.stage&&st.stage!=='setup'&&st.stage!=='done'){S=st;T=window.officialBank[id];break}}
+ if(S.stage==='done'&&!T)S.stage='setup';
+ if(S.stage==='setup'||!T)S.stage='setup';
+ render();setTimeout(flush,1500)});
+</script></body></html>
