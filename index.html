@@ -81,7 +81,9 @@ function evalQ(q){const a=S.ans[q.n],m=T.marking[q.type];
  if(q.type==='num')return nums(a,q.key)?{st:'ok',pts:m[0]}:{st:'wrong',pts:m[1]};
  if(q.type==='multi'){const K=keyArr(q),X=a.slice().sort();const same=X.length===K.length&&X.every((v,i)=>v===K.slice().sort()[i]);
   if(same)return{st:'ok',pts:m.full};
-  if(K.length>=2&&X.length===1&&K.includes(X[0]))return{st:'part',pts:m.part};
+  if(m.rule==='printed'){if(K.length>=2&&X.length===1&&K.includes(X[0]))return{st:'part',pts:m.part};return{st:'wrong',pts:m.neg}}
+  // standard JEE Advanced: only correct options chosen (not all) -> +1 per option chosen; any wrong option -> negative
+  if(X.every(v=>K.includes(v)))return{st:'part',pts:X.length};
   return{st:'wrong',pts:m.neg}}
  return Number(a)===keyArr(q)[0]?{st:'ok',pts:m[0]}:{st:'wrong',pts:m[1]}}
 const status=q=>evalQ(q).st;
