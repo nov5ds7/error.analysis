@@ -12,6 +12,7 @@ window.officialBank['excel_ract01'] = {
   "multi": {
    "full": 4,
    "part": 1,
+   "rule": "standard",
    "neg": -2
   },
   "num": [
