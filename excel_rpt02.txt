@@ -1,0 +1,714 @@
+window.officialBank = window.officialBank || {};
+window.officialBank['excel_rpt02'] = {
+ "title": "JP Excel & Accel RPT-02 (06.11.2026)",
+ "date": "06-11-2026",
+ "pattern": "main",
+ "optionStyle": "numbers",
+ "marking": {
+  "mcq": [
+   4,
+   -1
+  ],
+  "num": [
+   4,
+   -1
+  ]
+ },
+ "subjects": [
+  {
+   "code": "PHY",
+   "name": "Physics",
+   "from": 1,
+   "to": 25
+  },
+  {
+   "code": "CHE",
+   "name": "Chemistry",
+   "from": 26,
+   "to": 50
+  },
+  {
+   "code": "MATH",
+   "name": "Mathematics",
+   "from": 51,
+   "to": 75
+  }
+ ],
+ "questions": [
+  {
+   "n": 1,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Relative motion, overtaking",
+   "diff": "E",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 2,
+   "sub": "PHY",
+   "chapter": "Newton's Laws of Motion",
+   "topic": "Elastic string, tension and length",
+   "diff": "M",
+   "type": "mcq",
+   "key": 2
+  },
+  {
+   "n": 3,
+   "sub": "PHY",
+   "chapter": "Atomic Physics",
+   "topic": "Bohr orbit circumference",
+   "diff": "E",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 4,
+   "sub": "PHY",
+   "chapter": "Atomic Physics",
+   "topic": "Spectral lines of He+",
+   "diff": "E",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 5,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Rain and umbrella, relative velocity",
+   "diff": "E",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 6,
+   "sub": "PHY",
+   "chapter": "Atomic Physics",
+   "topic": "Bohr model, logarithmic potential",
+   "diff": "H",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 7,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Projectile, two shells",
+   "diff": "M",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 8,
+   "sub": "PHY",
+   "chapter": "Newton's Laws of Motion",
+   "topic": "Tension in strings, ball at rest vs released",
+   "diff": "H",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 9,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Projectile with air drag",
+   "diff": "M",
+   "type": "mcq",
+   "key": 2
+  },
+  {
+   "n": 10,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Velocity-time graph, distance",
+   "diff": "H",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 11,
+   "sub": "PHY",
+   "chapter": "Atomic Physics",
+   "topic": "X-ray K-line, Moseley's law",
+   "diff": "M",
+   "type": "mcq",
+   "key": 2
+  },
+  {
+   "n": 12,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Projectile motion, two particles",
+   "diff": "E",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 13,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Projectile with elastic collision",
+   "diff": "E",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 14,
+   "sub": "PHY",
+   "chapter": "Atomic Physics",
+   "topic": "Photoelectric effect with Bohr transitions",
+   "diff": "M",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 15,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Relative velocity, rain and wind",
+   "diff": "E",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 16,
+   "sub": "PHY",
+   "chapter": "Newton's Laws of Motion",
+   "topic": "Constraint relations, smooth surfaces",
+   "diff": "M",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 17,
+   "sub": "PHY",
+   "chapter": "Newton's Laws of Motion",
+   "topic": "Tension in string connecting blocks",
+   "diff": "E",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 18,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Minimum stopping distance",
+   "diff": "E",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 19,
+   "sub": "PHY",
+   "chapter": "Newton's Laws of Motion",
+   "topic": "Wedge and block, displacement relative to ground",
+   "diff": "H",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 20,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Constant acceleration, vector motion",
+   "diff": "M",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 21,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Acceleration-time graph",
+   "diff": "E",
+   "type": "num",
+   "key": 30
+  },
+  {
+   "n": 22,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Motion along x-axis under a force",
+   "diff": "M",
+   "type": "num",
+   "key": 18
+  },
+  {
+   "n": 23,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Projectile, oblique motion",
+   "diff": "E",
+   "type": "num",
+   "key": 15
+  },
+  {
+   "n": 24,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Variable acceleration a = 3x - 4",
+   "diff": "E",
+   "type": "num",
+   "key": 10
+  },
+  {
+   "n": 25,
+   "sub": "PHY",
+   "chapter": "Kinematics",
+   "topic": "Velocity-displacement graph",
+   "diff": "H",
+   "type": "num",
+   "key": 1
+  },
+  {
+   "n": 26,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Discovery of sub atomic particles, Atomic models, nucleus",
+   "diff": "E",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 27,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Quantum Numbers And Electronic Configuration",
+   "diff": "E",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 28,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Quantum Theory Of Light And Photoelectric Effect",
+   "diff": "E",
+   "type": "mcq",
+   "key": 2
+  },
+  {
+   "n": 29,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Quantum Theory Of Light And Photoelectric Effect",
+   "diff": "M",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 30,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Quantum Theory Of Light And Photoelectric Effect",
+   "diff": "M",
+   "type": "mcq",
+   "key": 2
+  },
+  {
+   "n": 31,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Bohr Model",
+   "diff": "M",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 32,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Bohr Model",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 33,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Bohr Model",
+   "diff": "E",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 34,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Spectrum",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 35,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Quantum Numbers And Electronic Configuration",
+   "diff": "E",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 36,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Quantum Numbers And Electronic Configuration",
+   "diff": "E",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 37,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Concept For Redox Reactions, Kmno4 / K2Cr2O7 V/S Reducing Agents And Their Redox Titration",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 38,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Weight, N-Factor And Normality For Oxidant And Reductant",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 39,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Concept For Redox Reactions, Kmno4 / K2Cr2O7 V/S Reducing Agents And Their Redox Titration",
+   "diff": "M",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 40,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Concept For Redox Reactions, Kmno4 / K2Cr2O7 V/S Reducing Agents And Their Redox Titration",
+   "diff": "E",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 41,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Balancing Redox Reactions",
+   "diff": "M",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 42,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Concept For Acid Base Titration And Precipitation Reactions",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 43,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Concept For Acid Base Titration And Precipitation Reactions",
+   "diff": "E",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 44,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Concept For Redox Reactions, Kmno4 / K2Cr2O7 V/S Reducing Agents And Their Redox Titration",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 45,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Balancing Redox Reactions",
+   "diff": "E",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 46,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Concept For Acid Base Titration And Precipitation Reactions",
+   "diff": "M",
+   "type": "num",
+   "key": 400
+  },
+  {
+   "n": 47,
+   "sub": "CHE",
+   "chapter": "Equivalent concept & Titration",
+   "topic": "Equivalent Concept For Redox Reactions, Kmno4 / K2Cr2O7 V/S Reducing Agents And Their Redox Titration",
+   "diff": "M",
+   "type": "num",
+   "key": 6
+  },
+  {
+   "n": 48,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Bohr Model",
+   "diff": "E",
+   "type": "num",
+   "key": 3
+  },
+  {
+   "n": 49,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "De Broglie Wavelength And Uncertainty Principle",
+   "diff": "M",
+   "type": "num",
+   "key": 2
+  },
+  {
+   "n": 50,
+   "sub": "CHE",
+   "chapter": "Atomic Structure",
+   "topic": "Bohr Model",
+   "diff": "H",
+   "type": "num",
+   "key": 3
+  },
+  {
+   "n": 51,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Calay Hamilton & Characterstic Equation",
+   "diff": "H",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 52,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Inverse Of Matrix",
+   "diff": "M",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 53,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 54,
+   "sub": "MATH",
+   "chapter": "Vector",
+   "topic": "Definition of Dot Product",
+   "diff": "E",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 55,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "System Of Linear Equations",
+   "diff": "M",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 56,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "System Of Linear Equations",
+   "diff": "H",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 57,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "System Of Linear Equations",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 58,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "System Of Linear Equations",
+   "diff": "M",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 59,
+   "sub": "MATH",
+   "chapter": "Determinants",
+   "topic": "Summation Of Determinants",
+   "diff": "H",
+   "type": "mcq",
+   "key": 2
+  },
+  {
+   "n": 60,
+   "sub": "MATH",
+   "chapter": "Sets",
+   "topic": "Cardinal Number",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 61,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "M",
+   "type": "mcq",
+   "key": 2
+  },
+  {
+   "n": 62,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "H",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 63,
+   "sub": "MATH",
+   "chapter": "Relation Function ITF",
+   "topic": "Number of Relations",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 64,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "H",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 65,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Calay Hamilton & Characterstic Equation",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 66,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Determinant of Square matrix",
+   "diff": "M",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 67,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "H",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 68,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Calay Hamilton & Characterstic Equation",
+   "diff": "M",
+   "type": "mcq",
+   "key": 4
+  },
+  {
+   "n": 69,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "M",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 70,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "H",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 71,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "M",
+   "type": "num",
+   "key": 30
+  },
+  {
+   "n": 72,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Multiplication Of Matrix",
+   "diff": "M",
+   "type": "num",
+   "key": 12
+  },
+  {
+   "n": 73,
+   "sub": "MATH",
+   "chapter": "Relation Function ITF",
+   "topic": "Number of Relations",
+   "diff": "M",
+   "type": "num",
+   "key": 27
+  },
+  {
+   "n": 74,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Adjoint Of Matrix",
+   "diff": "H",
+   "type": "num",
+   "key": 200
+  },
+  {
+   "n": 75,
+   "sub": "MATH",
+   "chapter": "Matrices",
+   "topic": "Inverse Of Matrix",
+   "diff": "H",
+   "type": "num",
+   "key": 6
+  }
+ ]
+};
