@@ -44,6 +44,14 @@ input.num{width:120px !important;text-align:center;font:600 15px 'JetBrains Mono
 .ok{background:var(--success-bg);color:var(--success);border-radius:10px;padding:12px 14px;font-weight:600}
 .warn{background:#fff6e5;color:#8a5a00;border-radius:10px;padding:12px 14px;font-size:14px}
 .muted{color:var(--muted)}.hide{display:none}
+
+.mc.missing{border-left:4px solid #e0a030}.mc.done{border-left:4px solid var(--success)}.mc.flash{outline:3px solid #e0a030}
+.edit{margin-left:auto;font-size:12.5px;color:var(--accent);cursor:pointer;text-decoration:underline;background:none;border:0;padding:0;font-family:inherit}
+.hrow{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}.hrow:last-child{border-bottom:0}
+table.tb{width:100%;border-collapse:collapse;font-size:13px}table.tb th,table.tb td{padding:6px 5px;text-align:right;border-bottom:1px solid var(--border)}table.tb th:first-child,table.tb td:first-child{text-align:left}table.tb th{color:var(--muted);font-weight:600}
+table.ml td,table.ml th{text-align:left;vertical-align:top}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media print{.top,.bar,.tabs,#restart,.noprint{display:none!important}body{background:#fff}.wrap{padding:0;max-width:none}.card{break-inside:avoid;border:1px solid #bbb}}
 </style></head><body>
 <div class="top"><div><h1>Test Review</h1><div class="sub" id="topsub">Quick error analysis</div></div><button class="btn btn-secondary hide" id="restart" style="padding:8px 12px;font-size:13px">Start over</button></div>
 <div id="tabs" class="tabs hide"></div>
@@ -70,19 +78,18 @@ function loadKeys(){return new Promise(async res=>{let list=[];
 
 // ---- grading
 const LET="ABCD";
-const useLet=()=>T.optionStyle==='letters';
-const lab=o=>useLet()?LET[o-1]:String(o);
+const styleOf=()=>S.style||T.optionStyle||'numbers';
+const lab=(o,nat)=>((nat?(T.optionStyle||'numbers'):styleOf())==='letters')?LET[o-1]:String(o);
 const keyArr=q=>q.type==='multi'?q.key.map(c=>LET.indexOf(c)+1):(q.type==='mcq'&&typeof q.key==='string'?[LET.indexOf(q.key)+1]:[q.key]);
 function nums(a,k){const x=parseFloat(String(a).replace(/,/g,''));if(isNaN(x))return false;const tol=Number.isInteger(k)?1e-6:0.0051;return Math.abs(x-k)<=tol}
-function fullMarks(q){const m=T.marking[q.type];return q.type==='multi'?m.full:m[0]}
+function fullMarks(q){const m=q.mk||T.marking[q.type];return q.type==='multi'?m.full:m[0]}
 // returns {st:'ok'|'part'|'wrong'|'skip', pts}
-function evalQ(q){const a=S.ans[q.n],m=T.marking[q.type];
+function evalQ(q){const a=S.ans[q.n],m=q.mk||T.marking[q.type];
  if(a===undefined||a===''||a===null||(Array.isArray(a)&&!a.length))return{st:'skip',pts:0};
  if(q.type==='num')return nums(a,q.key)?{st:'ok',pts:m[0]}:{st:'wrong',pts:m[1]};
  if(q.type==='multi'){const K=keyArr(q),X=a.slice().sort();const same=X.length===K.length&&X.every((v,i)=>v===K.slice().sort()[i]);
   if(same)return{st:'ok',pts:m.full};
   if(m.rule==='printed'){if(K.length>=2&&X.length===1&&K.includes(X[0]))return{st:'part',pts:m.part};return{st:'wrong',pts:m.neg}}
-  // standard JEE Advanced: only correct options chosen (not all) -> +1 per option chosen; any wrong option -> negative
   if(X.every(v=>K.includes(v)))return{st:'part',pts:X.length};
   return{st:'wrong',pts:m.neg}}
  return Number(a)===keyArr(q)[0]?{st:'ok',pts:m[0]}:{st:'wrong',pts:m[1]}}
@@ -91,26 +98,34 @@ function grade(){const r={subs:{},total:0,max:0,wrong:0,skip:0,ok:0,part:0};T.su
  T.questions.forEach(q=>{const x=r.subs[q.sub],e=evalQ(q);x.max+=fullMarks(q);r.max+=fullMarks(q);x.score+=e.pts;r.total+=e.pts;x[e.st]++;r[e.st]++});return r}
 function suggest(q,st){if(st==='skip')return q.diff==='H'?'R1':'R5';return q.diff==='E'?'R4':q.diff==='H'?'R1':'R2'}
 const issues=()=>T.questions.filter(q=>status(q)!=='ok');
-const ansTxt=q=>{const a=S.ans[q.n];if(a===undefined||a===''||(Array.isArray(a)&&!a.length))return'';return Array.isArray(a)?a.slice().sort().map(lab).join(','):(q.type==='num'?String(a):lab(Number(a)))};
-const keyTxt=q=>q.type==='num'?String(q.key):keyArr(q).map(lab).join(',');
+const ansTxt=(q,nat)=>{const a=S.ans[q.n];if(a===undefined||a===''||(Array.isArray(a)&&!a.length))return'';return Array.isArray(a)?a.slice().sort().map(o=>lab(o,nat)).join(','):(q.type==='num'?String(a):lab(Number(a),nat))};
+const keyTxt=(q,nat)=>q.type==='num'?String(q.key):keyArr(q).map(o=>lab(o,nat)).join(',');
+// per question-type and per-difficulty statistics for the student
+function typeStats(){const tn={mcq:'Single correct',multi:'Multiple correct',num:'Numerical'},dn={E:'Easy',M:'Medium',H:'Hard'};const ty={},df={};
+ T.questions.forEach(q=>{const st=status(q);[[ty,tn[q.type]],[df,dn[q.diff]||q.diff]].forEach(([o,k])=>{const x=o[k]||(o[k]={q:0,ok:0,wrong:0,skip:0});x.q++;if(st==='ok')x.ok++;else if(st==='skip')x.skip++;else x.wrong++})});return{ty:ty,df:df}}
 
 // ---- render
 function setBar(info,nextTxt,nextOn,back){$('bar').classList.remove('hide');$('barinfo').innerHTML=info;$('next').textContent=nextTxt;$('next').disabled=!nextOn;$('back').classList.toggle('hide',!back)}
-function render(){$('restart').classList.toggle('hide',S.stage==='setup');({setup:rSetup,entry:rEntry,reasons:rReasons,done:rDone})[S.stage]()}
+function render(){$('restart').classList.toggle('hide',S.stage==='setup'||!!S.viewing);({setup:rSetup,entry:rEntry,reasons:rReasons,done:rDone})[S.stage]()}
+const fmtDate=s=>{try{return new Date(s).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})}catch(e){return''}};
 
 function rSetup(){
  $('tabs').classList.add('hide');$('bar').classList.add('hide');$('topsub').textContent='Quick error analysis';
- const ids=Object.keys(window.officialBank);const who=LS.get('ea_who',{});
+ const ids=Object.keys(window.officialBank);const who=LS.get('ea_who',{});const hist=LS.get('ea_hist',[]);
  $('app').innerHTML=`<div class="card"><h2 style="font-size:20px">Review your institute test</h2>
- <p class="muted" style="margin:6px 0 0">Keep your marked question paper in front of you. Enter what you marked, then tag why you lost marks. Takes about 10 minutes.</p>
+ <p class="muted" style="margin:6px 0 0">Keep your marked question paper in front of you. Enter what you marked, then tag why you lost marks. Takes about 10 minutes. Your progress is saved on this device automatically.</p>
  <label>Test</label><select id="sel">${ids.length?ids.map(i=>`<option value="${i}">${esc(window.officialBank[i].title)}</option>`).join(''):'<option value="">No tests available yet</option>'}</select>
  <label>Your name</label><input type="text" id="nm" value="${esc(who.name||'')}" autocomplete="name">
  <label>Batch</label><input type="text" id="bt" value="${esc(who.batch||'')}" placeholder="e.g. 12-A">
- <div style="margin-top:18px"><button class="btn btn-primary" id="go" style="width:100%">Start</button></div></div>`;
+ <div style="margin-top:18px"><button class="btn btn-primary" id="go" style="width:100%">Start</button></div></div>
+ ${hist.length?`<div class="card"><h3 style="font-size:16px;margin-bottom:4px">Your previous reviews</h3>${hist.map((h,i)=>({h,i})).reverse().map(({h,i})=>`<div class="hrow" data-i="${i}"><span>${esc(h.title)}<br><span class="muted" style="font-size:12px">${fmtDate(h.at)}${h.p?'':' · summary only'}</span></span><b style="white-space:nowrap">${h.total} / ${h.max}</b></div>`).join('')}</div>`:''}`;
+ document.querySelectorAll('.hrow').forEach(r=>r.onclick=()=>viewHist(+r.dataset.i));
  $('go').onclick=()=>{const id=$('sel').value,n=$('nm').value.trim(),b=$('bt').value.trim();if(!id||!n||!b){alert('Please choose a test and fill your name and batch.');return}
   T=window.officialBank[id];const old=LS.get('ea_state_'+id,null);
   if(old&&old.name===n&&old.stage!=='done'){S=old;S.batch=b}else S={stage:'entry',name:n,batch:b,testId:id,ans:{},reasons:{},notes:{},sub:T.subjects[0].code};
   S.testId=id;save();render()}}
+function viewHist(i){const h=LS.get('ea_hist',[])[i];if(!h||!h.p)return;const bank=window.officialBank[h.testId];if(!bank)return;T=bank;
+ S={stage:'done',name:h.p.name,batch:h.p.batch,testId:h.testId,ans:{},reasons:{},notes:{},last:h.p,viewing:true};render();window.scrollTo(0,0)}
 
 function rEntry(){
  $('topsub').textContent=T.title;const tb=$('tabs');tb.classList.remove('hide');
@@ -118,11 +133,14 @@ function rEntry(){
   return`<button class="tab ${S.sub===s.code?'on':''}" data-s="${s.code}">${s.name}<small>${d}/${qs.length} entered</small></button>`}).join('');
  tb.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{S.sub=b.dataset.s;save();rEntry();window.scrollTo(0,0)});
  const qs=T.questions.filter(q=>q.sub===S.sub);
- $('app').innerHTML=`<div class="card"><p class="muted" style="margin:0 0 6px;font-size:13px">Tap the option you marked. Leave a question blank if you did not attempt it. Numerical: type your answer. Questions tagged "Multiple" can have more than one correct option: tap all you marked.</p>`+
+ $('app').innerHTML=`<div class="card"><p class="muted" style="margin:0 0 8px;font-size:13px">Tap the option you marked. Leave a question blank if you did not attempt it. Numerical: type your answer. Questions tagged "Multiple" can have more than one correct option: tap all you marked.</p>
+ <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><span class="muted" style="font-size:13px">Show options as</span><button class="chip ${styleOf()==='numbers'?'on':''}" data-st="numbers" style="margin:0">1 2 3 4</button><button class="chip ${styleOf()==='letters'?'on':''}" data-st="letters" style="margin:0">A B C D</button>${S.seenReasons?'<button class="btn btn-secondary" id="toRev" style="margin-left:auto;padding:7px 12px;font-size:13px">Back to reasons</button>':''}</div>`+
  qs.map(q=>{const tag=q.type==='multi'?' <span class="tag s">Multiple</span>':'';
   return q.type==='num'?
   `<div class="q"><div class="qn">${q.n}</div><div class="qm">${esc(q.chapter)}</div><input class="num" type="number" step="any" inputmode="decimal" data-n="${q.n}" value="${S.ans[q.n]??''}" placeholder="answer"></div>`:
   `<div class="q"><div class="qn">${q.n}</div><div class="qm">${esc(q.chapter)}${tag}</div><div class="opts">${[1,2,3,4].map(o=>`<button class="o ${(q.type==='multi'?(S.ans[q.n]||[]).includes(o):S.ans[q.n]===o)?'on':''}" data-n="${q.n}" data-o="${o}">${lab(o)}</button>`).join('')}</div></div>`}).join('')+`</div>`;
+ document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{S.style=b.dataset.st;save();rEntry()});
+ if($('toRev'))$('toRev').onclick=()=>{S.stage='reasons';save();render();window.scrollTo(0,0)};
  document.querySelectorAll('.o').forEach(b=>b.onclick=()=>{const n=b.dataset.n,o=+b.dataset.o,q=T.questions.find(x=>x.n==n);
   if(q.type==='multi'){let a=S.ans[n]||[];a=a.includes(o)?a.filter(x=>x!==o):a.concat(o);if(a.length)S.ans[n]=a;else delete S.ans[n]}
   else{if(S.ans[n]===o)delete S.ans[n];else S.ans[n]=o}
@@ -132,55 +150,86 @@ function rEntry(){
  function upd(){const tot=T.questions.filter(q=>evalQ(q).st!=='skip').length;tb.querySelectorAll('.tab').forEach(b=>{const c=b.dataset.s,qq=T.questions.filter(q=>q.sub===c);b.querySelector('small').textContent=qq.filter(q=>evalQ(q).st!=='skip').length+'/'+qq.length+' entered'});
   setBar(tot+' of '+T.questions.length+' attempted',last?'See my result':'Next: '+T.subjects[idx+1].name,true,idx>0)}
  upd();
- $('next').onclick=()=>{if(last){S.stage='reasons';save();render();window.scrollTo(0,0)}else{S.sub=T.subjects[idx+1].code;save();rEntry();window.scrollTo(0,0)}};
+ $('next').onclick=()=>{if(last){S.stage='reasons';S.seenReasons=true;save();render();window.scrollTo(0,0)}else{S.sub=T.subjects[idx+1].code;save();rEntry();window.scrollTo(0,0)}};
  $('back').onclick=()=>{S.sub=T.subjects[idx-1].code;save();rEntry();window.scrollTo(0,0)}}
 
 function rReasons(){
- $('topsub').textContent=T.title;$('tabs').classList.add('hide');
+ $('topsub').textContent=T.title;$('tabs').classList.add('hide');S.seenReasons=true;
  const g=grade(),list=issues();
  const head=`<div class="card"><h2 style="font-size:18px">Your score: ${g.total} / ${g.max}</h2><div class="stats" style="margin-top:10px">${Object.values(g.subs).map(s=>`<div class="stat"><b>${s.score}</b><span>${s.name} / ${s.max}</span></div>`).join('')}</div>
-  <p class="muted" style="margin:10px 0 0;font-size:13.5px">${g.ok} correct · ${g.wrong} wrong${g.part?' · '+g.part+' partial':''} · ${g.skip} not attempted. Tap one reason for each question below. Dashed = suggested.</p>
+  <p class="muted" style="margin:10px 0 0;font-size:13.5px">${g.ok} correct · ${g.wrong} wrong${g.part?' · '+g.part+' partial':''} · ${g.skip} not attempted. Tap one reason for each question below (dashed = suggested). Typed a wrong answer? Tap "Edit answer" on that question.</p>
   ${list.length?`<button class="btn btn-secondary" id="acc" style="margin-top:10px;padding:9px 14px;font-size:13.5px">Use suggestions for the rest</button>`:''}</div>`;
  $('app').innerHTML=head+(list.length?list.map(q=>{const st=status(q),sg=suggest(q,st);
-  return`<div class="mc ${S.reasons[q.n]?'done':''}" data-n="${q.n}"><div class="h"><b style="font-family:'JetBrains Mono'">Q${q.n}</b><span class="tag ${st==='skip'?'s':'w'}">${st==='wrong'?'Wrong':st==='part'?'Partial':'Not attempted'}</span><span class="muted" style="font-size:12.5px">${esc(q.sub)} · ${esc(q.chapter)} · ${esc(q.topic)}${st==='skip'?' · Key: '+keyTxt(q):' · You: '+ansTxt(q)+', Key: '+keyTxt(q)}</span></div>
+  return`<div class="mc ${S.reasons[q.n]?'done':'missing'}" data-n="${q.n}"><div class="h"><b style="font-family:'JetBrains Mono'">Q${q.n}</b><span class="tag ${st==='skip'?'s':'w'}">${st==='wrong'?'Wrong':st==='part'?'Partial':'Not attempted'}</span><span class="muted" style="font-size:12.5px">${esc(q.sub)} · ${esc(q.chapter)} · ${esc(q.topic)}${st==='skip'?' · Key: '+keyTxt(q):' · You: '+ansTxt(q)+', Key: '+keyTxt(q)}</span><button class="edit" data-n="${q.n}">Edit answer</button></div>
   ${REASONS.map(([c,t])=>`<button class="chip ${S.reasons[q.n]===c?'on':''} ${sg===c?'sug':''}" data-n="${q.n}" data-c="${c}">${t}</button>`).join('')}
   <input class="note" data-n="${q.n}" placeholder="Optional note (what went wrong?)" value="${esc(S.notes[q.n]||'')}"></div>`}).join(''):`<div class="ok">Perfect paper - nothing to analyse!</div>`);
  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const n=b.dataset.n;S.reasons[n]=S.reasons[n]===b.dataset.c?undefined:b.dataset.c;if(!S.reasons[n])delete S.reasons[n];save();
-  b.parentNode.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',S.reasons[n]===x.dataset.c));b.parentNode.classList.toggle('done',!!S.reasons[n]);upd()});
+  const card=b.parentNode;card.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',S.reasons[n]===x.dataset.c));card.classList.toggle('done',!!S.reasons[n]);card.classList.toggle('missing',!S.reasons[n]);upd()});
  document.querySelectorAll('.note').forEach(i=>i.oninput=()=>{S.notes[i.dataset.n]=i.value;save()});
+ document.querySelectorAll('.edit').forEach(b=>b.onclick=()=>{const q=T.questions.find(x=>x.n==b.dataset.n);S.sub=q.sub;S.stage='entry';save();render();window.scrollTo(0,0)});
  if($('acc'))$('acc').onclick=()=>{list.forEach(q=>{if(!S.reasons[q.n])S.reasons[q.n]=suggest(q,status(q))});save();rReasons()};
- function upd(){const d=list.filter(q=>S.reasons[q.n]).length;setBar(d+' of '+list.length+' tagged','Submit',d===list.length,true)}
- upd();$('back').onclick=()=>{S.stage='entry';save();render()};$('next').onclick=submit}
+ function upd(){const d=list.filter(q=>S.reasons[q.n]).length,m=list.length-d;setBar(d+' of '+list.length+' tagged'+(m?' · <b style="color:#b9770e">'+m+' still need a reason</b>':''),'Submit',true,true)}
+ upd();$('back').onclick=()=>{S.stage='entry';save();render()};
+ $('next').onclick=()=>{const miss=list.filter(q=>!S.reasons[q.n]);
+  if(miss.length){const el=document.querySelector('.mc[data-n="'+miss[0].n+'"]');if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1600)}}
+  else submit()}}
 
 // ---- submit with offline queue
-function payload(){const g=grade();return{type:'analysis',id:'EA-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),submittedAt:new Date().toISOString(),name:S.name,batch:S.batch,testId:S.testId,testName:T.title,
+function payload(){const g=grade();const p={type:'analysis',id:'EA-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),submittedAt:new Date().toISOString(),name:S.name,batch:S.batch,testId:S.testId,testName:T.title,
  total:g.total,max:g.max,correct:g.ok,wrong:g.wrong+g.part,skipped:g.skip,subjects:Object.entries(g.subs).map(([c,s])=>({code:c,score:s.score,max:s.max,ok:s.ok,wrong:s.wrong,skip:s.skip})),
- mistakes:issues().map(q=>({n:q.n,sub:q.sub,chapter:q.chapter,topic:q.topic,diff:q.diff,ans:ansTxt(q),key:keyTxt(q),status:({wrong:'Wrong',part:'Partial',skip:'Not attempted'})[status(q)],reason:RN[S.reasons[q.n]]||'',code:S.reasons[q.n]||'',note:S.notes[q.n]||''}))}}
+ mistakes:issues().map(q=>({n:q.n,sub:q.sub,chapter:q.chapter,topic:q.topic,diff:q.diff,ans:ansTxt(q,true),key:keyTxt(q,true),status:({wrong:'Wrong',part:'Partial',skip:'Not attempted'})[status(q)],reason:RN[S.reasons[q.n]]||'',code:S.reasons[q.n]||'',note:S.notes[q.n]||''})),
+ stats:typeStats()};if(S.replaces)p.replaces=S.replaces;return p}
 let flushing=false;
 async function flush(){if(flushing)return;flushing=true;try{let ob=LS.get('ea_outbox',[]);const keep=[];
  for(const p of ob){try{const c=new AbortController(),t=setTimeout(()=>c.abort(),20000);
   const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p),signal:c.signal});clearTimeout(t);const j=await r.json();if(!j.ok)keep.push(p)}catch(e){keep.push(p)}}
  LS.set('ea_outbox',keep);return keep.length===0}finally{flushing=false}}
 async function submit(){const p=payload();S.last=p;S.stage='done';
- const hist=LS.get('ea_hist',[]);hist.push({testId:S.testId,title:T.title,at:p.submittedAt,total:p.total,max:p.max,mistakes:p.mistakes.map(m=>({code:m.code,chapter:m.chapter}))});LS.set('ea_hist',hist);
+ let hist=LS.get('ea_hist',[]);if(S.replaces)hist=hist.filter(h=>!(h.p&&h.p.id===S.replaces));
+ hist.push({testId:S.testId,title:T.title,at:p.submittedAt,total:p.total,max:p.max,mistakes:p.mistakes.map(m=>({code:m.code,chapter:m.chapter})),p:p});LS.set('ea_hist',hist);
+ delete S.replaces;
  const ob=LS.get('ea_outbox',[]);ob.push(p);LS.set('ea_outbox',ob);save();render();window.scrollTo(0,0);await flush();rDone(true)}
+
+const pctTxt=(a,b)=>b>0?Math.round(a*100/b)+'%':'-';
+function statTable(title,o,order){const keys=(order||Object.keys(o)).filter(k=>o[k]);if(!keys.length)return'';
+ return`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">${title}</h3><table class="tb"><tr><th></th><th>Qs</th><th>Correct</th><th>Wrong</th><th>Blank</th><th>Accuracy</th></tr>${keys.map(k=>{const x=o[k];return`<tr><td>${esc(k)}</td><td>${x.q}</td><td>${x.ok}</td><td>${x.wrong}</td><td>${x.skip}</td><td><b>${pctTxt(x.ok,x.ok+x.wrong)}</b></td></tr>`}).join('')}</table><p class="muted" style="font-size:12px;margin:6px 0 0">Accuracy = correct out of the questions you attempted.</p></div>`}
+function sumStats(list,f){const o={};list.forEach(h=>{const s=h.p&&h.p.stats&&h.p.stats[f];if(!s)return;Object.entries(s).forEach(([k,x])=>{const y=o[k]||(o[k]={q:0,ok:0,wrong:0,skip:0});y.q+=x.q;y.ok+=x.ok;y.wrong+=x.wrong;y.skip+=x.skip})});return o}
+const COMMON={};
+async function loadCommon(p){try{const r=await fetch(SCRIPT_URL+'?action=common&test='+encodeURIComponent(p.testId));const j=await r.json();if(j&&j.ok&&!j.hidden&&j.n)COMMON[p.testId]=j;paintCommon(p)}catch(e){}}
+function paintCommon(p){const j=COMMON[p.testId],el=$('common');if(!j||!el)return;
+ const mine=new Set(p.mistakes.map(m=>m.n));
+ el.innerHTML=`<div class="card"><h3 style="font-size:16px;margin-bottom:2px">What most students found hard in this test</h3><p class="muted" style="margin:0 0 8px;font-size:12.5px">Based on ${j.n} students who reviewed it</p>
+ ${(j.questions||[]).map(q=>`<div class="hb"><span style="flex:1">Q${q.n} · ${esc(q.chapter)}${q.topic?' - '+esc(q.topic):''}${mine.has(q.n)?' <span class="tag w">You too</span>':''}</span><b>${Math.round(q.lost*100/j.n)}%</b></div>`).join('')}
+ <p class="muted" style="font-size:12px;margin:8px 0 0">% of students who lost marks on that question.</p>
+ ${(j.chapters||[]).length?`<h4 style="margin:12px 0 4px;font-size:14px">Chapters</h4>${j.chapters.map(c=>`<div class="hb"><span style="flex:1">${esc(c.sub)} · ${esc(c.chapter)}</span><b>${Math.round(c.lost*100/j.n)}%</b></div>`).join('')}`:''}</div>`}
 function rDone(refresh){
  const p=S.last;if(!p){S.stage='setup';return render()}
  $('tabs').classList.add('hide');$('topsub').textContent=T.title;
- const pend=LS.get('ea_outbox',[]).some(x=>x.id===p.id);
+ const pend=!S.viewing&&LS.get('ea_outbox',[]).some(x=>x.id===p.id);
  const cnt={};p.mistakes.forEach(m=>{const k=m.reason||'Untagged';cnt[k]=(cnt[k]||0)+1});
  const ch={};p.mistakes.forEach(m=>ch[m.chapter]=(ch[m.chapter]||0)+1);
- const bars=(o,n)=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k,v])=>`<div class="hb"><span style="width:150px">${esc(k)}</span><div class="t"><i style="width:${v/p.mistakes.length*100}%"></i></div><b>${v}</b></div>`).join('');
+ const bars=(o,n)=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k,v])=>`<div class="hb"><span style="width:150px">${esc(k)}</span><div class="t"><i style="width:${v/Math.max(...Object.values(o))*100}%"></i></div><b>${v}</b></div>`).join('');
  const hist=LS.get('ea_hist',[]);const all={};hist.forEach(h=>h.mistakes.forEach(m=>{if(m.code)all[RN[m.code]]=(all[RN[m.code]]||0)+1}));
- $('app').innerHTML=`<div class="${pend?'warn':'ok'}">${pend?'Saved on this device. It will submit automatically when you are online - keep this page or reopen it later.':'Submitted. Thank you!'}</div>
- <div class="card" style="margin-top:14px"><h2 style="font-size:18px">Score ${p.total} / ${p.max}</h2><div class="stats" style="margin-top:10px">${p.subjects.map(s=>`<div class="stat"><b>${s.score}</b><span>${esc(s.code)} / ${s.max}</span></div>`).join('')}</div></div>
- ${p.mistakes.length?`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">Why you lost marks</h3>${bars(cnt,6)}</div><div class="card"><h3 style="font-size:16px;margin-bottom:6px">Chapters to revisit first</h3>${bars(ch,5)}</div>`:''}
- ${hist.length>1?`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">Across all your reviewed tests (${hist.length})</h3>${bars(all,6).replace(/\/p.mistakes.length/,'')}</div>`:''}`;
+ const banner=S.viewing?`<div class="muted noprint" style="margin-bottom:10px"><button class="btn btn-secondary" id="home" style="padding:8px 12px;font-size:13px">&larr; Back</button> &nbsp;Saved review from ${fmtDate(p.submittedAt)}</div>`:`<div class="${pend?'warn':'ok'}">${pend?'Saved on this device. It will submit automatically when you are online - keep this page or reopen it later.':'Submitted. Thank you!'}</div>`;
+ $('app').innerHTML=`${banner}
+ <div class="card" style="margin-top:14px"><h2 style="font-size:18px">${esc(p.testName||T.title)}</h2><div class="muted" style="font-size:13px">${esc(p.name)} · ${esc(p.batch)} · ${fmtDate(p.submittedAt)}</div><h2 style="font-size:18px;margin-top:8px">Score ${p.total} / ${p.max}</h2><div class="stats" style="margin-top:10px">${p.subjects.map(s=>`<div class="stat"><b>${s.score}</b><span>${esc(s.code)} / ${s.max}</span></div>`).join('')}</div>
+ <div class="actions noprint"><button class="btn btn-secondary" id="prt" style="padding:9px 14px;font-size:13.5px">Print / Save as PDF</button>${S.viewing?'':'<button class="btn btn-secondary" id="edt" style="padding:9px 14px;font-size:13.5px">Edit my answers</button>'}</div></div>
+ ${p.stats?statTable('By question type',p.stats.ty,['Single correct','Multiple correct','Numerical'])+statTable('By difficulty',p.stats.df,['Easy','Medium','Hard']):''}
+ <div id="common"></div>
+ ${p.mistakes.length?`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">Why you lost marks</h3>${bars(cnt,6)}</div><div class="card"><h3 style="font-size:16px;margin-bottom:6px">Chapters to revisit first</h3>${bars(ch,5)}</div>
+ <div class="card"><h3 style="font-size:16px;margin-bottom:6px">Your mistakes in detail</h3><table class="tb ml"><tr><th>Q</th><th>Chapter / topic</th><th>You</th><th>Key</th><th>Reason</th></tr>${p.mistakes.map(m=>`<tr><td>${m.n}</td><td>${esc(m.chapter)}<br><span class="muted">${esc(m.topic)}</span></td><td>${esc(m.ans||'-')}</td><td>${esc(m.key)}</td><td>${esc(m.reason)}${m.note?'<br><span class="muted">'+esc(m.note)+'</span>':''}</td></tr>`).join('')}</table></div>`:''}
+ ${!S.viewing&&hist.length>1?`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">Across all your reviewed tests (${hist.length})</h3>${bars(all,6)}</div>`+statTable('Question types - all your tests',sumStats(hist,'ty'),['Single correct','Multiple correct','Numerical'])+statTable('Difficulty - all your tests',sumStats(hist,'df'),['Easy','Medium','Hard']):''}`;
  $('bar').classList.add('hide');
+ $('prt').onclick=()=>window.print();
+ if($('edt'))$('edt').onclick=()=>{S.stage='entry';S.sub=T.subjects[0].code;S.replaces=p.id;S.seenReasons=true;save();render();window.scrollTo(0,0)};
+ if($('home'))$('home').onclick=()=>{S={stage:'setup',ans:{},reasons:{},notes:{}};render();window.scrollTo(0,0)};
+ if(COMMON[p.testId])paintCommon(p);else if(!COMMON['p_'+p.testId]){COMMON['p_'+p.testId]=1;loadCommon(p)}
  if(pend&&!refresh)flush().then(()=>rDone(true))}
 $('restart').onclick=()=>{if(confirm('Discard this review and start over?')){try{localStorage.removeItem('ea_state_'+S.testId)}catch(e){}S={stage:'setup',ans:{},reasons:{},notes:{}};render()}};
-window.addEventListener('online',()=>{flush().then(()=>{if(S.stage==='done')rDone(true)})});
+window.addEventListener('online',()=>{flush().then(()=>{if(S.stage==='done'&&!S.viewing)rDone(true)})});
+function resendDone(){let n=0;try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('ea_state_')===0){const st=JSON.parse(localStorage.getItem(k));if(st&&st.stage==='done'&&st.last){const ob=LS.get('ea_outbox',[]);ob.push(st.last);LS.set('ea_outbox',ob);n++}}}}catch(e){}return n}
 loadKeys().then(()=>{
+ if(/[?&]resend=1/.test(location.search)){resendDone()}
  const ids=Object.keys(window.officialBank);
  for(const id of ids){const st=LS.get('ea_state_'+id,null);if(st&&st.stage&&st.stage!=='setup'&&st.stage!=='done'){S=st;T=window.officialBank[id];break}}
  if(S.stage==='done'&&!T)S.stage='setup';
