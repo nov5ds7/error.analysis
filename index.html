@@ -111,7 +111,10 @@ const fmtDate=s=>{try{return new Date(s).toLocaleDateString(undefined,{day:'nume
 
 function rSetup(){
  $('tabs').classList.add('hide');$('bar').classList.add('hide');$('topsub').textContent='Quick error analysis';
- const ids=Object.keys(window.officialBank);const who=LS.get('ea_who',{});const hist=LS.get('ea_hist',[]);
+ const dk=d=>{const m=String(d||'').match(/(\d{1,2})\D(\d{1,2})\D(\d{4})/);return m?m[3]+m[2].padStart(2,'0')+m[1].padStart(2,'0'):''};
+ const ids0=Object.keys(window.officialBank);
+ const ids=ids0.map((id,ix)=>({id,ix,d:dk(window.officialBank[id].date)})).sort((x,y)=>x.d<y.d?1:x.d>y.d?-1:y.ix-x.ix).map(o=>o.id);
+ const who=LS.get('ea_who',{});const hist=LS.get('ea_hist',[]);
  $('app').innerHTML=`<div class="card"><h2 style="font-size:20px">Review your institute test</h2>
  <p class="muted" style="margin:6px 0 0">Keep your marked question paper in front of you. Enter what you marked, then tag why you lost marks. Takes about 10 minutes. Your progress is saved on this device automatically.</p>
  <label>Test</label><select id="sel">${ids.length?ids.map(i=>`<option value="${i}">${esc(window.officialBank[i].title)}</option>`).join(''):'<option value="">No tests available yet</option>'}</select>
