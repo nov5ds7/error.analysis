@@ -209,9 +209,9 @@ function paintClass(p,j){(p.mistakes||[]).forEach(m=>{const el=$('cls'+m.n);if(!
 function paintCommon(p){const j=COMMON[p.testId],el=$('common');if(!j)return;paintClass(p,j);if(!el||j.hidden)return;
  const mine=new Set(p.mistakes.map(m=>m.n));
  el.innerHTML=`<div class="card"><h3 style="font-size:16px;margin-bottom:2px">What most students found hard in this test</h3><p class="muted" style="margin:0 0 8px;font-size:12.5px">Based on ${j.n} students who reviewed it</p>
- ${(j.questions||[]).map(q=>`<div class="hb"><span style="flex:1">Q${q.n} · ${esc(q.chapter)}${q.topic?' - '+esc(q.topic):''}${mine.has(q.n)?' <span class="tag w">You too</span>':''}</span><b>${Math.round(q.lost*100/j.n)}%</b></div>`).join('')}
+ ${(j.questions||[]).map(q=>`<div class="hb"><span style="flex:1">Q${q.n} · ${esc(q.chapter)}${q.topic?' - '+esc(q.topic):''}${mine.has(q.n)?' <span class="tag w">You too</span>':''}</span><b>${Math.min(100,Math.round(q.lost*100/j.n))}%</b></div>`).join('')}
  <p class="muted" style="font-size:12px;margin:8px 0 0">% of students who lost marks on that question.</p>
- ${(j.chapters||[]).length?`<h4 style="margin:12px 0 4px;font-size:14px">Chapters</h4>${j.chapters.map(c=>`<div class="hb"><span style="flex:1">${esc(c.sub)} · ${esc(c.chapter)}</span><b>${Math.round(c.lost*100/j.n)}%</b></div>`).join('')}`:''}</div>`}
+ ${(j.chapters||[]).length?`<h4 style="margin:12px 0 4px;font-size:14px">Chapters</h4>${j.chapters.map(c=>`<div class="hb"><span style="flex:1">${esc(c.sub)} · ${esc(c.chapter)}</span><b>${Math.min(100,Math.round(c.lost*100/j.n))}%</b></div>`).join('')}`:''}</div>`}
 function rDone(refresh){
  const p=S.last;if(!p){S.stage='setup';return render()}
  $('tabs').classList.add('hide');$('topsub').textContent=T.title;
