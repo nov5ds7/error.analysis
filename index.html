@@ -198,8 +198,15 @@ function statTable(title,o,order){const keys=(order||Object.keys(o)).filter(k=>o
  return`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">${title}</h3><table class="tb"><tr><th></th><th>Qs</th><th>Correct</th><th>Wrong</th><th>Blank</th><th>Accuracy</th></tr>${keys.map(k=>{const x=o[k];return`<tr><td>${esc(k)}</td><td>${x.q}</td><td>${x.ok}</td><td>${x.wrong}</td><td>${x.skip}</td><td><b>${pctTxt(x.ok,x.ok+x.wrong)}</b></td></tr>`}).join('')}</table><p class="muted" style="font-size:12px;margin:6px 0 0">Accuracy = correct out of the questions you attempted.</p></div>`}
 function sumStats(list,f){const o={};list.forEach(h=>{const s=h.p&&h.p.stats&&h.p.stats[f];if(!s)return;Object.entries(s).forEach(([k,x])=>{const y=o[k]||(o[k]={q:0,ok:0,wrong:0,skip:0});y.q+=x.q;y.ok+=x.ok;y.wrong+=x.wrong;y.skip+=x.skip})});return o}
 const COMMON={};
-async function loadCommon(p){try{const r=await fetch(SCRIPT_URL+'?action=common&test='+encodeURIComponent(p.testId));const j=await r.json();if(j&&j.ok&&!j.hidden&&j.n)COMMON[p.testId]=j;paintCommon(p)}catch(e){}}
-function paintCommon(p){const j=COMMON[p.testId],el=$('common');if(!j||!el)return;
+async function loadCommon(p){try{const r=await fetch(SCRIPT_URL+'?action=common&test='+encodeURIComponent(p.testId));const j=await r.json();if(j&&j.ok)COMMON[p.testId]=j;paintCommon(p)}catch(e){}}
+function paintClass(p,j){(p.mistakes||[]).forEach(m=>{const el=$('cls'+m.n);if(!el)return;
+ if(j.hidden){el.innerHTML='<span class="muted">Class numbers appear once 5 students have submitted this test.</span>';return}
+ const x=(j.qs||{})[m.n];if(!x){el.innerHTML='';return}
+ const bits=[`<b>${x.w}</b> wrong`,`<b>${x.b}</b> left blank`];
+ if(x.o)bits.push(`most chosen wrong answer: <b>${esc(x.o)}</b>`);
+ if(x.r)bits.push(`most common reason: <b>${esc(x.r)}</b>`);
+ el.innerHTML=`<span class="muted">Class (${j.n} students): ${bits.join(' · ')}</span>`})}
+function paintCommon(p){const j=COMMON[p.testId],el=$('common');if(!j)return;paintClass(p,j);if(!el||j.hidden)return;
  const mine=new Set(p.mistakes.map(m=>m.n));
  el.innerHTML=`<div class="card"><h3 style="font-size:16px;margin-bottom:2px">What most students found hard in this test</h3><p class="muted" style="margin:0 0 8px;font-size:12.5px">Based on ${j.n} students who reviewed it</p>
  ${(j.questions||[]).map(q=>`<div class="hb"><span style="flex:1">Q${q.n} · ${esc(q.chapter)}${q.topic?' - '+esc(q.topic):''}${mine.has(q.n)?' <span class="tag w">You too</span>':''}</span><b>${Math.round(q.lost*100/j.n)}%</b></div>`).join('')}
@@ -220,7 +227,7 @@ function rDone(refresh){
  ${p.stats?statTable('By question type',p.stats.ty,['Single correct','Multiple correct','Numerical'])+statTable('By difficulty',p.stats.df,['Easy','Medium','Hard']):''}
  <div id="common"></div>
  ${p.mistakes.length?`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">Why you lost marks</h3>${bars(cnt,6)}</div><div class="card"><h3 style="font-size:16px;margin-bottom:6px">Chapters to revisit first</h3>${bars(ch,5)}</div>
- <div class="card"><h3 style="font-size:16px;margin-bottom:6px">Your mistakes in detail</h3><table class="tb ml"><tr><th>Q</th><th>Chapter / topic</th><th>You</th><th>Key</th><th>Reason</th></tr>${p.mistakes.map(m=>`<tr><td>${m.n}</td><td>${esc(m.chapter)}<br><span class="muted">${esc(m.topic)}</span></td><td>${esc(m.ans||'-')}</td><td>${esc(m.key)}</td><td>${esc(m.reason)}${m.note?'<br><span class="muted">'+esc(m.note)+'</span>':''}</td></tr>`).join('')}</table></div>`:''}
+ <div class="card"><h3 style="font-size:16px;margin-bottom:6px">Your mistakes in detail</h3><table class="tb ml"><tr><th>Q</th><th>Chapter / topic</th><th>You</th><th>Key</th><th>Reason</th></tr>${p.mistakes.map(m=>`<tr><td>${m.n}</td><td>${esc(m.chapter)}<br><span class="muted">${esc(m.topic)}</span><div id="cls${m.n}" style="font-size:12px;margin-top:4px"></div></td><td>${esc(m.ans||'-')}</td><td>${esc(m.key)}</td><td>${esc(m.reason)}${m.note?'<br><span class="muted">'+esc(m.note)+'</span>':''}</td></tr>`).join('')}</table></div>`:''}
  ${!S.viewing&&hist.length>1?`<div class="card"><h3 style="font-size:16px;margin-bottom:6px">Across all your reviewed tests (${hist.length})</h3>${bars(all,6)}</div>`+statTable('Question types - all your tests',sumStats(hist,'ty'),['Single correct','Multiple correct','Numerical'])+statTable('Difficulty - all your tests',sumStats(hist,'df'),['Easy','Medium','Hard']):''}`;
  $('bar').classList.add('hide');
  $('prt').onclick=()=>window.print();
