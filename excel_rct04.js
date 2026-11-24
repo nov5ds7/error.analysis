@@ -569,23 +569,14 @@ window.officialBank['excel_rct04'] = {
   {
    "n": 60,
    "sub": "MATH",
-   "chapter": "Permutation and Combination",
-   "topic": "Word Problems",
+   "chapter": "Indefinite Integration",
+   "topic": "Standard Integration",
    "diff": "E",
    "type": "mcq",
    "key": 2
   },
   {
    "n": 61,
-   "sub": "MATH",
-   "chapter": "Indefinite Integration",
-   "topic": "Standard Integration",
-   "diff": "E",
-   "type": "mcq",
-   "key": 3
-  },
-  {
-   "n": 62,
    "sub": "MATH",
    "chapter": "Continuity and Derivability",
    "topic": "Continuity at a point",
@@ -594,10 +585,19 @@ window.officialBank['excel_rct04'] = {
    "key": 3
   },
   {
-   "n": 63,
+   "n": 62,
    "sub": "MATH",
    "chapter": "Matrices",
    "topic": "Equation solving",
+   "diff": "M",
+   "type": "mcq",
+   "key": 3
+  },
+  {
+   "n": 63,
+   "sub": "MATH",
+   "chapter": "Relation Function ITF",
+   "topic": "Types of Relations",
    "diff": "M",
    "type": "mcq",
    "key": 1
@@ -606,31 +606,22 @@ window.officialBank['excel_rct04'] = {
    "n": 64,
    "sub": "MATH",
    "chapter": "Relation Function ITF",
-   "topic": "Types of Relations",
-   "diff": "M",
+   "topic": "Inverse properties",
+   "diff": "H",
    "type": "mcq",
    "key": 3
   },
   {
    "n": 65,
    "sub": "MATH",
-   "chapter": "Relation Function ITF",
-   "topic": "Inverse properties",
-   "diff": "H",
+   "chapter": "Matrices",
+   "topic": "Adjoint of matrix",
+   "diff": "M",
    "type": "mcq",
    "key": 2
   },
   {
    "n": 66,
-   "sub": "MATH",
-   "chapter": "Matrices",
-   "topic": "Adjoint of matrix",
-   "diff": "M",
-   "type": "mcq",
-   "key": 1
-  },
-  {
-   "n": 67,
    "sub": "MATH",
    "chapter": "Permutation and Combination",
    "topic": "Rectangle & Parallelogram Problems",
@@ -639,10 +630,19 @@ window.officialBank['excel_rct04'] = {
    "key": 1
   },
   {
-   "n": 68,
+   "n": 67,
    "sub": "MATH",
    "chapter": "Vector",
    "topic": "Definition of Dot Product",
+   "diff": "M",
+   "type": "mcq",
+   "key": 1
+  },
+  {
+   "n": 68,
+   "sub": "MATH",
+   "chapter": "Three Dimensional Geometry",
+   "topic": "Skew lines",
    "diff": "M",
    "type": "mcq",
    "key": 2
@@ -650,8 +650,8 @@ window.officialBank['excel_rct04'] = {
   {
    "n": 69,
    "sub": "MATH",
-   "chapter": "Three Dimensional Geometry",
-   "topic": "Skew lines",
+   "chapter": "Relation Function ITF",
+   "topic": "Functional Relation and value of function",
    "diff": "M",
    "type": "mcq",
    "key": 3
@@ -659,9 +659,9 @@ window.officialBank['excel_rct04'] = {
   {
    "n": 70,
    "sub": "MATH",
-   "chapter": "Relation Function ITF",
-   "topic": "Functional Relation and value of function",
-   "diff": "M",
+   "chapter": "Permutation and Combination",
+   "topic": "Word Problems",
+   "diff": "E",
    "type": "mcq",
    "key": 2
   },
